@@ -1,0 +1,20 @@
+GLOBAL_CONFIGS:
+  DEVICE: "cuda"
+
+FLOOR_PLANE_DETECTION:
+  MODEL:
+    WEIGHTS: "models/floor_plane_model.pt"
+
+  CONSTANTS:
+    HASHMAP:
+      Bath: 0
+      Bathroom: 1
+      Door: 2
+      Shower Cabin: 3
+      Sink: 4
+      Toilet: 5
+      Wash Machine: 6
+    SCALE_CONSTANT: 0.5625  # 0.75 ** 2
+    DOOR_SIZE_IN_METERS: 0.85
+    WALL_HEIGHT: 2.4
+    
