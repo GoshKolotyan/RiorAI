@@ -1,0 +1,10 @@
+[project]
+name = "riorai"
+version = "2.1.0"
+description = "Rior project"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.0.0",
+
+]

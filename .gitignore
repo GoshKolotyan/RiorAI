@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+#pytorch models
+*.pt
+*.lock
+
 # Distribution / packaging
 .Python
 build/
