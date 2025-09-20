@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 from pydantic import BaseModel, Field
 
 
@@ -17,7 +17,7 @@ class FloorPlaneCategoryHashMap(BaseModel):
         validate_by_name = True
         populate_by_name = True
 
-    def get_category_name(self, category_id: int) -> str:
+    def get_category_name(self, category_id: int) -> Optional[str]:
         """Get category name by ID"""
         id_to_name = {
             self.bath: "Bath",
@@ -30,7 +30,7 @@ class FloorPlaneCategoryHashMap(BaseModel):
         }
         return id_to_name.get(category_id)
 
-    def get_category_id(self, category_name: str) -> int:
+    def get_category_id(self, category_name: str) -> Optional[int]:
         """Get category ID by name"""
         name_to_id = {
             "Bath": self.bath,

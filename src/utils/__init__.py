@@ -1,3 +1,3 @@
-from src.utils.logger import setup_loger
+from src.utils.logger import setup_logger
 
-__all__ = ["setup_loger"]
+__all__ = ["setup_logger"]

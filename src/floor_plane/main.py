@@ -1,7 +1,7 @@
 from typing import Dict, List
 
 
-from src.utils.logger import setup_loger
+from src.utils.logger import setup_logger
 from src.core.configs import Configs, ConfigsLoader
 from src.floor_plane.floor_plane_preprocessing import (
     ObjectCleaner,
@@ -13,7 +13,7 @@ from src.floor_plane.floor_plane_model_loader import YOLOModel
 
 
 def main(image_data: str, door_size_in_m: float, wall_height: float, configs: Configs) -> List[Dict]:
-    logger = setup_loger(name="floor_plane_logger")
+    logger = setup_logger(name="floor_plane_logger")
 
     BATHROOM_INFO = []
     
@@ -25,26 +25,26 @@ def main(image_data: str, door_size_in_m: float, wall_height: float, configs: Co
             ).__call__()
 
         # Step 2: Object Cleaning
-        # logger.info("Step 2: Cleaning objects")
+        logger.info("Step 2: Cleaning objects")
         cleaner = ObjectCleaner(original_image)
         cleaned_image = cleaner(yolo_boxes=coordinates_dict)
 
         # Step 3: Overlapping check
-        # logger.info("Step 3: Checking for overlapping bathrooms")
+        logger.info("Step 3: Checking for overlapping bathrooms")
         filtered_bathroom_boxes = OverlappingChecker(cleaned_image, coordinates_dict).filter_overlapping_bathrooms()
-        # logger.info(f"Filtered bathroom boxes: {len(filtered_bathroom_boxes)} found")
+        logger.info(f"Filtered bathroom boxes: {len(filtered_bathroom_boxes)} found")
 
         # Step 4: Find nearest doors
-        # logger.info("Step 4: Finding nearest doors")
+        logger.info("Step 4: Finding nearest doors")
         nearest_doors = NearestDoorFinder(coordinates_dict).find_nearest_door()
-        # logger.info(f"Nearest doors found: {len(nearest_doors)}")
+        logger.info(f"Nearest doors found: {len(nearest_doors)}")
 
         # Step 5: Analyze each bathroom
-        # logger.info("Step 5: Analyzing bathrooms")
+        logger.info("Step 5: Analyzing bathrooms")
         for idx, bathroom_bbox in enumerate(filtered_bathroom_boxes):
             try:
                 bathroom = {}
-                # logger.info(f"Processing bathroom {idx + 1}")
+                logger.info(f"Processing bathroom {idx + 1}")
 
                 nearest_door_info = nearest_doors.get(f"Bathroom_{idx}", None)
                 if nearest_door_info is None or nearest_door_info.get("door_coords") is None:
@@ -78,17 +78,17 @@ def main(image_data: str, door_size_in_m: float, wall_height: float, configs: Co
                 bathroom["Wall_Area"] = wall_area
                 bathroom["Elements"] = elements
                 BATHROOM_INFO.append(bathroom)
-                # logger.info(f"Successfully processed bathroom {idx + 1}")
+                logger.info(f"Successfully processed bathroom {idx + 1}")
 
             except Exception as e:
-                # logger.error(f"Error processing bathroom {idx + 1}: {str(e)}")
+                logger.error(f"Error processing bathroom {idx + 1}: {str(e)}")
                 continue
 
-        # logger.info(f"Processing complete. Found {len(BATHROOM_INFO)} valid bathrooms")
+        logger.info(f"Processing complete. Found {len(BATHROOM_INFO)} valid bathrooms")
         return BATHROOM_INFO
 
     except Exception as e:
-        # logger.error(f"Error in main function: {str(e)}")
+        logger.error(f"Error in main function: {str(e)}")
         raise
 
 if __name__ == "__main__":

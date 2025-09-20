@@ -1,15 +1,14 @@
 import sys
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
 
 class ColorFormatter(logging.Formatter):
-    """Custom formatter with colors for different log levels."""
-
+    """Add colors to log levels."""
+    
     COLORS = {
-        'DEBUG': '\033[90m',    # Dark gray
-        'INFO': '\033[32m',     # Green
+        'DEBUG': '\033[90m',    # Gray
+        'INFO': '\033[32m',     # Green  
         'WARNING': '\033[33m',  # Yellow
         'ERROR': '\033[31m',    # Red
         'CRITICAL': '\033[35m', # Magenta
@@ -17,63 +16,62 @@ class ColorFormatter(logging.Formatter):
     RESET = '\033[0m'
 
     def format(self, record):
-        log_color = self.COLORS.get(record.levelname, '')
-        # Color only the level name
-        colored_level = f"{log_color}[{record.levelname}]{self.RESET}"
-        # Replace the original level in the format
-        formatted_message = super().format(record)
-        formatted_message = formatted_message.replace(f"[{record.levelname}]", colored_level)
-        return formatted_message
+        # Get the formatted message first
+        message = super().format(record)
+        
+        # Add color to the level name
+        color = self.COLORS.get(record.levelname, '')
+        colored_level = f"{color}[{record.levelname}]{self.RESET}"
+        
+        # Replace the level in the message
+        return message.replace(f"[{record.levelname}]", colored_level)
 
 
-def setup_loger(
-    name: str,
-    level: Union[str, int] = "INFO",
-    log_file: Optional[str] = None,
-    format_string: Optional[str] = None,
-    enable_colors: bool = True
-) -> logging.Logger:
-
+def setup_logger(name, level="INFO", log_file=None, enable_colors=True):
+    """Create a logger with console and optional file output."""
+    
     logger = logging.getLogger(name)
-
-    # Avoid adding handlers multiple times
+    
+    # Skip if already configured
     if logger.handlers:
         return logger
-
-    # Set logging level
+    
+    # Set level
     if isinstance(level, str):
-        numeric_level = getattr(logging, level.upper(), logging.INFO)
-    else:
-        numeric_level = level
-    logger.setLevel(numeric_level)
-
-    # Prevent propagation to avoid duplicate messages
+        level = getattr(logging, level.upper(), logging.INFO)
+    logger.setLevel(level)
     logger.propagate = False
-
-    # Default format
-    if format_string is None:
-        format_string = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
-
-    # Console handler with colors
-    console_handler = logging.StreamHandler(sys.stdout)
+    
+    # Format for messages
+    fmt = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+    
+    # Console output
+    console = logging.StreamHandler(sys.stdout)
     if enable_colors and sys.stdout.isatty():
-        console_formatter = ColorFormatter(format_string)
-        console_formatter.datefmt = "%Y-%m-%d"
+        console.setFormatter(ColorFormatter(fmt))
     else:
-        console_formatter = logging.Formatter(format_string)
-        console_formatter.datefmt = "%Y-%m-%d"
-    console_handler.setFormatter(console_formatter)
-    logger.addHandler(console_handler)
-
-    # File handler (optional)
+        console.setFormatter(logging.Formatter(fmt))
+    logger.addHandler(console)
+    
+    # File output (optional)
     if log_file:
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-
+        Path(log_file).parent.mkdir(parents=True, exist_ok=True)
         file_handler = logging.FileHandler(log_file)
-        file_formatter = logging.Formatter(format_string)
-        file_formatter.datefmt = "%Y-%m-%d"
-        file_handler.setFormatter(file_formatter)
+        file_handler.setFormatter(logging.Formatter(fmt))
         logger.addHandler(file_handler)
-
+    
     return logger
+
+
+# Example usage
+# if __name__ == "__main__":
+#     # Basic usage
+#     log = setup_logger("myapp")
+#     log.info("This is an info message")
+#     log.warning("This is a warning")
+#     log.error("This is an error")
+    
+#     # With file logging
+#     log2 = setup_logger("fileapp", level="DEBUG", log_file="app.log")
+#     log2.debug("Debug message")
+#     log2.info("Info message")
