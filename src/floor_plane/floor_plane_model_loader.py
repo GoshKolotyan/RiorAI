@@ -7,7 +7,6 @@ from ultralytics import YOLO
 from typing import List, Dict, Tuple, Union
 from warnings import filterwarnings
 
-from .configs import FloorPlaneConfig
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -15,29 +14,16 @@ logger = logging.getLogger(__name__)
 filterwarnings("ignore")
 
 
-class YOLOModel(FloorPlaneConfig):
-    def __init__(self, image_path: str, config_path=None):
-        super().__init__(config_path)
-        self.device = self.device if torch.cuda.is_available() else "cpu"
+class YOLOModel:
+    def __init__(self, image_path: str, weights:str):
+        self.weights = weights
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.model = YOLO(self.weights).to(self.device)
         self.image = image_path
-        self._warmup()
-
-    def _warmup(self):
-        dummy = torch.zeros((1, 3, 640, 640)).to(self.device)
-        self.model.predict(source=dummy, device=self.device, verbose=False)
-        logger.info("Warmup inference completed.")
 
     def infer_and_process(self) -> Tuple[Dict[str, List[List[float]]], Union[Image.Image, None]]:
         try:
-            results = self.model.predict(
-                source=self.image,
-                device=self.device,
-                # save=True,
-                # save_txt=True,
-                augment=False,
-                verbose=False
-            )
+            results = self.model.predict(source=self.image, device=self.device,verbose=False)
             processed_results = self._process_results(results)
             
             # Get the original image from results and convert to PIL Image

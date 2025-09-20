@@ -3,7 +3,7 @@ GLOBAL_CONFIGS:
 
 FLOOR_PLANE_DETECTION:
   MODEL:
-    WEIGHTS: "models/floor_plane_model.pt"
+    WEIGHTS: "data/models/floor_plane_model.pt"
 
   CONSTANTS:
     HASHMAP:
@@ -14,7 +14,7 @@ FLOOR_PLANE_DETECTION:
       Sink: 4
       Toilet: 5
       Wash Machine: 6
-    SCALE_CONSTANT: 0.5625  # 0.75 ** 2
-    DOOR_SIZE_IN_METERS: 0.85
-    WALL_HEIGHT: 2.4
+    SCALE_CONSTANT: 0.1  # 0.75 ** 2
+    DOOR_SIZE_IN_METERS: 0.8
+    WALL_HEIGHT: 2.8
     

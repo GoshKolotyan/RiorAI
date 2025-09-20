@@ -4,9 +4,6 @@ import matplotlib.pyplot as plt
 
 
 from typing import List, Dict, Tuple
-from .configs import FloorPlaneConfig
-
-confisgs = FloorPlaneConfig()
 
 class NearestDoorFinder:
     def __init__(self, coordinates_dict: Dict[str, List[List[float]]]):
@@ -73,13 +70,12 @@ class NearestDoorFinder:
         return self.find_nearest_door()
 
 
-class BathroomMetricsAnalyzer(FloorPlaneConfig):
+class BathroomMetricsAnalyzer:
     def __init__(self, image: np.ndarray, 
                  bathroom_bbox: Tuple, 
                  door_bbox: List[float], 
-                 wall_height:float=2.8 ,
-                 door_size_in_m:float=0.85):
-        super().__init__()
+                 wall_height:float,
+                 door_size_in_m:float):
         self.bathroom_bbox = bathroom_bbox
         self.door_bbox = door_bbox
         self.door_size_m = door_size_in_m
@@ -222,25 +218,25 @@ class BathroomMetricsAnalyzer(FloorPlaneConfig):
             original_image_with_contours, [larges_shifter_counter], -1, (255, 0, 0), 3
         )
 
-        # plt.figure(figsize=(18, 6))
+        plt.figure(figsize=(18, 6))
 
-        # plt.subplot(1, 3, 1)
-        # plt.title("Cropped Bathroom Image with Walls Only")
-        # plt.imshow(walls_only)
-        # plt.axis("off")
+        plt.subplot(1, 3, 1)
+        plt.title("Cropped Bathroom Image with Walls Only")
+        plt.imshow(walls_only)
+        plt.axis("off")
 
-        # plt.subplot(1, 3, 2)
-        # plt.title("Contours on Cropped Image")
-        # plt.imshow(contour_image)
-        # plt.axis("off")
+        plt.subplot(1, 3, 2)
+        plt.title("Contours on Cropped Image")
+        plt.imshow(contour_image)
+        plt.axis("off")
 
-        # plt.subplot(1, 3, 3)
-        # plt.title("Contours on Original Image")
-        # plt.imshow(original_image_with_contours)
-        # plt.axis("off")
+        plt.subplot(1, 3, 3)
+        plt.title("Contours on Original Image")
+        plt.imshow(original_image_with_contours)
+        plt.axis("off")
 
-        # plt.tight_layout()
-        # plt.show()
+        plt.tight_layout()
+        plt.show()
 
         return (
             perimeter_meters,
@@ -248,87 +244,87 @@ class BathroomMetricsAnalyzer(FloorPlaneConfig):
             wall_area,
             np.squeeze(larges_shifter_counter).tolist(),
         )
-    # def visualize_contours_and_line(self, epsilon_factor=0.1):
-    #     """Visualize contours clearly using simplified approximations."""
+    def visualize_contours_and_line(self, epsilon_factor=0.1):
+        """Visualize contours clearly using simplified approximations."""
 
-    #     cropped_bathroom, bathroom_coords = self.crop_bathroom()
-    #     walls_only = self.remove_background(cropped_bathroom)
+        cropped_bathroom, bathroom_coords = self.crop_bathroom()
+        walls_only = self.remove_background(cropped_bathroom)
 
-    #     door_x_min, door_y_min, door_x_max, door_y_max = self.yolo_to_pixel_coords(self.door_bbox)
+        door_x_min, door_y_min, door_x_max, door_y_max = self.yolo_to_pixel_coords(self.door_bbox)
 
-    #     cropped_height, cropped_width = cropped_bathroom.shape[:2]
+        cropped_height, cropped_width = cropped_bathroom.shape[:2]
 
-    #     scale_x = cropped_width / (bathroom_coords[2] - bathroom_coords[0])
-    #     scale_y = cropped_height / (bathroom_coords[3] - bathroom_coords[1])
+        scale_x = cropped_width / (bathroom_coords[2] - bathroom_coords[0])
+        scale_y = cropped_height / (bathroom_coords[3] - bathroom_coords[1])
 
-    #     normalized_door_x_min = int((door_x_min - bathroom_coords[0]) * scale_x)
-    #     normalized_door_y_min = int((door_y_min - bathroom_coords[1]) * scale_y)
-    #     normalized_door_x_max = int((door_x_max - bathroom_coords[0]) * scale_x)
-    #     normalized_door_y_max = int((door_y_max - bathroom_coords[1]) * scale_y)
+        normalized_door_x_min = int((door_x_min - bathroom_coords[0]) * scale_x)
+        normalized_door_y_min = int((door_y_min - bathroom_coords[1]) * scale_y)
+        normalized_door_x_max = int((door_x_max - bathroom_coords[0]) * scale_x)
+        normalized_door_y_max = int((door_y_max - bathroom_coords[1]) * scale_y)
 
-    #     door_pixels = normalized_door_x_max - normalized_door_x_min
+        door_pixels = normalized_door_x_max - normalized_door_x_min
 
-    #     gray = cv2.cvtColor(walls_only, cv2.COLOR_BGR2GRAY)
-    #     _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+        gray = cv2.cvtColor(walls_only, cv2.COLOR_BGR2GRAY)
+        _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
 
-    #     # Optional Morphology to clean the image
-    #     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    #     thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=2)
+        # Optional Morphology to clean the image
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+        thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=2)
 
-    #     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    #     if not contours:
-    #         print("No contours found!")
-    #         return None
+        if not contours:
+            print("No contours found!")
+            return None
 
-    #     largest_contour = max(contours, key=cv2.contourArea)
+        largest_contour = max(contours, key=cv2.contourArea)
 
-    #     # Contour approximation for cleaner visualization
-    #     epsilon = epsilon_factor * cv2.arcLength(largest_contour, True)
-    #     approx_contour = cv2.approxPolyDP(largest_contour, epsilon, True)
+        # Contour approximation for cleaner visualization
+        epsilon = epsilon_factor * cv2.arcLength(largest_contour, True)
+        approx_contour = cv2.approxPolyDP(largest_contour, epsilon, True)
 
-    #     # Draw simplified contour on cropped image
-    #     contour_image = walls_only.copy()
-    #     cv2.drawContours(contour_image, [approx_contour], -1, (0, 255, 0), 3)
+        # Draw simplified contour on cropped image
+        contour_image = walls_only.copy()
+        cv2.drawContours(contour_image, [approx_contour], -1, (0, 255, 0), 3)
 
-    #     perimeter_pixels = cv2.arcLength(approx_contour, True)
+        perimeter_pixels = cv2.arcLength(approx_contour, True)
 
-    #     pixels_per_meter = door_pixels / self.door_size_m
-    #     perimeter_meters = perimeter_pixels / pixels_per_meter
-    #     wall_area = self.wall_height * perimeter_meters
+        pixels_per_meter = door_pixels / self.door_size_m
+        perimeter_meters = perimeter_pixels / pixels_per_meter
+        wall_area = self.wall_height * perimeter_meters
 
-    #     area_pixels = cv2.contourArea(approx_contour)
-    #     area_meters = area_pixels / (pixels_per_meter ** 2)
+        area_pixels = cv2.contourArea(approx_contour)
+        area_meters = area_pixels / (pixels_per_meter ** 2)
 
-    #     # Shift contours back to original image coordinates
-    #     x_offset, y_offset = bathroom_coords[0], bathroom_coords[1]
-    #     shifted_contour = approx_contour + np.array([[x_offset, y_offset]])
+        # Shift contours back to original image coordinates
+        x_offset, y_offset = bathroom_coords[0], bathroom_coords[1]
+        shifted_contour = approx_contour + np.array([[x_offset, y_offset]])
 
-    #     original_image_with_contours = self.image.copy()
-    #     cv2.drawContours(original_image_with_contours, [shifted_contour], -1, (0, 255, 0), 3)
+        original_image_with_contours = self.image.copy()
+        cv2.drawContours(original_image_with_contours, [shifted_contour], -1, (0, 255, 0), 3)
 
-    #     # Visualization
-    #     fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+        # Visualization
+        fig, axes = plt.subplots(1, 3, figsize=(18, 6))
 
-    #     axes[0].imshow(cv2.cvtColor(walls_only, cv2.COLOR_BGR2RGB))
-    #     axes[0].set_title("Walls Only (Cropped)")
-    #     axes[0].axis('off')
+        axes[0].imshow(cv2.cvtColor(walls_only, cv2.COLOR_BGR2RGB))
+        axes[0].set_title("Walls Only (Cropped)")
+        axes[0].axis('off')
 
-    #     axes[1].imshow(cv2.cvtColor(contour_image, cv2.COLOR_BGR2RGB))
-    #     axes[1].set_title("Simplified Contours (Cropped)")
-    #     axes[1].axis('off')
+        axes[1].imshow(cv2.cvtColor(contour_image, cv2.COLOR_BGR2RGB))
+        axes[1].set_title("Simplified Contours (Cropped)")
+        axes[1].axis('off')
 
-    #     axes[2].imshow(cv2.cvtColor(original_image_with_contours, cv2.COLOR_BGR2RGB))
-    #     axes[2].set_title("Simplified Contours (Original Image)")
-    #     axes[2].axis('off')
+        axes[2].imshow(cv2.cvtColor(original_image_with_contours, cv2.COLOR_BGR2RGB))
+        axes[2].set_title("Simplified Contours (Original Image)")
+        axes[2].axis('off')
 
-    #     plt.tight_layout()
-    #     plt.show()
+        plt.tight_layout()
+        plt.show()
 
-    #     return (
-    #         perimeter_meters,
-    #         area_meters,
-    #         wall_area,
-    #         np.squeeze(shifted_contour).tolist(),
-    #     )
+        return (
+            perimeter_meters,
+            area_meters,
+            wall_area,
+            np.squeeze(shifted_contour).tolist(),
+        )
 
